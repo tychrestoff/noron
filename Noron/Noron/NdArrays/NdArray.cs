@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Linq;
 using Noron.Utilities;
 
 using static Noron.Utilities.RandomNumberUtility;
 
 namespace Noron.NdArrays
 {
-    public partial class NdArray
+    public class NdArray
     {
         public NdArray(int[] dimensions)
         {
@@ -26,6 +27,8 @@ namespace Noron.NdArrays
         public NdArray Acosh() => UnaryFunc(x => NoronUtilities.Acosh(x));
         public NdArray Add(double x) => BinaryFunc((a, b) => a + b, x);
         public NdArray Add(NdArray x) => BinaryFunc((a, b) => a + b, x);
+        public bool All() => Data.All(x => x != 0);
+        public bool Any() => Data.Any(x => x != 0);
         public NdArray Asin() => UnaryFunc(x => Math.Asin(x));
         public NdArray Asinh() => UnaryFunc(x => NoronUtilities.Asinh(x));
         public NdArray Atan() => UnaryFunc(x => Math.Atan(x));
@@ -60,6 +63,8 @@ namespace Noron.NdArrays
         }
         public NdArray Divide(double x) => BinaryFunc((a, b) => a / b, x);
         public NdArray Divide(NdArray x) => BinaryFunc((a, b) => a / b, x);
+        public NdArray EqualTo(double x) => BinaryFunc((a, b) => Convert.ToInt32(a == b), x);
+        public NdArray EqualTo(NdArray x) => BinaryFunc((a, b) => Convert.ToInt32(a == b), x);
         public NdArray Exp() => UnaryFunc(x => Math.Exp(x));
         public NdArray Floor() => UnaryFunc(x => Math.Floor(x));
         public NdArray Fill(double c)
@@ -87,17 +92,29 @@ namespace Noron.NdArrays
 
             return Data[idx];
         }
+        public NdArray GreaterThan(double x) => BinaryFunc((a, b) => Convert.ToInt32(a > b), x);
+        public NdArray GreaterThan(NdArray x) => BinaryFunc((a, b) => Convert.ToInt32(a > b), x);
+        public NdArray GreaterThanOrEqualTo(double x) => BinaryFunc((a, b) => Convert.ToInt32(a >= b), x);
+        public NdArray GreaterThanOrEqualTo(NdArray x) => BinaryFunc((a, b) => Convert.ToInt32(a >= b), x);
         public NdArray Invert() => UnaryFunc(x => 1 / x);
+        public NdArray LessThan(double x) => BinaryFunc((a, b) => Convert.ToInt32(a < b), x);
+        public NdArray LessThan(NdArray x) => BinaryFunc((a, b) => Convert.ToInt32(a < b), x);
+        public NdArray LessThanOrEqualTo(double x) => BinaryFunc((a, b) => Convert.ToInt32(a <= b), x);
+        public NdArray LessThanOrEqualTo(NdArray x) => BinaryFunc((a, b) => Convert.ToInt32(a <= b), x);
         public NdArray Log() => UnaryFunc(x => Math.Log(x));
+        public double Max() => Data.Max();
         public NdArray Max(double x) => BinaryFunc((a, b) => Math.Max(a, b), x);
         public NdArray Max(NdArray x) => BinaryFunc((a, b) => Math.Max(a, b), x);
+        public double Min() => Data.Min();
         public NdArray Min(double x) => BinaryFunc((a, b) => Math.Min(a, b), x);
         public NdArray Min(NdArray x) => BinaryFunc((a, b) => Math.Min(a, b), x);
         public NdArray Modulo(double x) => BinaryFunc((a, b) => a % b, x);
-        public NdArray Module(NdArray x) => BinaryFunc((a, b) => a % b, x);
+        public NdArray Modulo(NdArray x) => BinaryFunc((a, b) => a % b, x);
         public NdArray Multiply(double x) => BinaryFunc((a, b) => a * b, x);
         public NdArray Multiply(NdArray x) => BinaryFunc((a, b) => a * b, x);
         public NdArray Negate() => UnaryFunc(x => -x);
+        public NdArray NotEqualTo(double x) => BinaryFunc((a, b) => Convert.ToInt32(a != b), x);
+        public NdArray NotEqualTo(NdArray x) => BinaryFunc((a, b) => Convert.ToInt32(a != b), x);
         public NdArray Pow(double x) => BinaryFunc((a, b) => Math.Pow(a, b), x);
         public NdArray Pow(NdArray x) => BinaryFunc((a, b) => Math.Pow(a, b), x);
         public NdArray PseudoInvert() => UnaryFunc(x => x == 0 ? 0 : 1 / x);
@@ -130,9 +147,25 @@ namespace Noron.NdArrays
         }
         public NdArray Sin() => UnaryFunc(x => Math.Sin(x));
         public NdArray Sinh() => UnaryFunc(x => Math.Sinh(x));
+        public NdArray Softmax()
+        {
+            var max = Max();
+            var sum = Sum();
+            var ndarr = new NdArray(Dimensions);
+
+            for (int i = 0; i < Length; ++i)
+            {
+                ndarr.Data[i] = Math.Exp(Data[i] - max);
+            }
+
+            for (int i = 0; i < Length; ++i) ndarr.Data[i] /= sum;
+
+            return ndarr;
+        }
         public NdArray Sqrt() => UnaryFunc(x => Math.Sqrt(x));
         public NdArray Subtract(double x) => BinaryFunc((a, b) => a - b, x);
         public NdArray Subtract(NdArray x) => BinaryFunc((a, b) => a - b, x);
+        public double Sum() => Data.Sum();
         public NdArray Tan() => UnaryFunc(x => Math.Tan(x));
         public NdArray Tanh() => UnaryFunc(x => Math.Tanh(x));
         public NdArray Zero() => Fill(0);
