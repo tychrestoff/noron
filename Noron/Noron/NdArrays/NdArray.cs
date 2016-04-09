@@ -74,7 +74,7 @@ namespace Noron.NdArrays
         }
         public NdArray FillRandom()
         {
-            var normScale = Math.Sqrt(1.0 / Length);
+            var normScale = 1.0 / Length;
             for (int i = 0; i < Length; ++i) Data[i] = PseudoGaussian(0, normScale);
             return this;
         }
@@ -149,16 +149,24 @@ namespace Noron.NdArrays
         public NdArray Sinh() => UnaryFunc(x => Math.Sinh(x));
         public NdArray Softmax()
         {
-            var max = Max();
-            var sum = Sum();
+            var max = double.NegativeInfinity;
+            var n = Length;
+
+            for (int i = 0; i < n; ++i) max = Math.Max(max, Data[i]);
+
             var ndarr = new NdArray(Dimensions);
 
-            for (int i = 0; i < Length; ++i)
+            n = Length;
+            var sum = 0.0;
+
+            for (int i = 0; i < n; ++i)
             {
                 ndarr.Data[i] = Math.Exp(Data[i] - max);
+                sum += ndarr.Data[i];
             }
 
-            for (int i = 0; i < Length; ++i) ndarr.Data[i] /= sum;
+            n = Length;
+            for (int i = 0; i < n; ++i) ndarr.Data[i] /= sum;
 
             return ndarr;
         }
